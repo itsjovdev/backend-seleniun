@@ -26,7 +26,7 @@ RUN gs --version && echo "✅ Ghostscript instalado correctamente"
 
 # Instalar dependencias de Node
 COPY package*.json ./
-RUN npm ci
+RUN npm cache clean --force && npm install
 
 # Copiar código y construir
 COPY . .
