@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-   
+      
   // CORS configurado para producción y desarrollo
   app.enableCors({
     origin: [
@@ -19,12 +19,16 @@ async function bootstrap() {
     credentials: false
   });
 
-  const port = process.env.PORT ?? 3000;
-     
+  const port = process.env.PORT || 3000;
+        
   // CRÍTICO: Para Docker debe escuchar en 0.0.0.0, no solo localhost
   await app.listen(port, '0.0.0.0');
-     
-  console.log(`Backend running on http://localhost:${port}`);
+        
+  console.log(`🚀 Backend running on http://0.0.0.0:${port}`);
+  console.log(`📝 Health check: http://localhost:${port}`);
 }
 
-bootstrap();
+bootstrap().catch(err => {
+  console.error('❌ Error starting server:', err);
+  process.exit(1);
+});

@@ -10,7 +10,7 @@ RUN apt-get update && \
     libreoffice-writer \
     libreoffice-core \
     libreoffice-common \
-    # 🔥 GHOSTSCRIPT para compresión PDF (esto faltaba!)
+    # 🔥 GHOSTSCRIPT para compresión PDF
     ghostscript \
     # Herramientas adicionales de PDF
     poppler-utils \
@@ -24,13 +24,26 @@ RUN apt-get update && \
 # Verificar instalación de Ghostscript
 RUN gs --version && echo "✅ Ghostscript instalado correctamente"
 
-# Instalar dependencias de Node
+# 🔧 Instalar dependencias de Node (OPTIMIZADO)
 COPY package*.json ./
-RUN npm cache clean --force && npm install
 
-# Copiar código y construir
+# Limpiar cache y usar npm ci para builds más estables
+RUN npm cache clean --force && \
+    npm ci --only=production --no-audit --no-fund --verbose
+
+# Instalar dependencias de desarrollo para el build
+RUN npm ci --no-audit --no-fund --verbose
+
+# Copiar código fuente
 COPY . .
-RUN rm -rf dist && npm run build
+
+# Construir la aplicación
+RUN npm run build
+
+# Limpiar dependencias de desarrollo para reducir tamaño
+RUN npm prune --production
 
 EXPOSE 3000
+
+# Usar el comando correcto
 CMD ["node", "dist/main.js"]
