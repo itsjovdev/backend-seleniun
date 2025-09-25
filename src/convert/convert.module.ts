@@ -1,12 +1,10 @@
+//C:\Users\jov\Documents\proyectos\seleniun\backend\api\src\convert\convert.module.ts
 import { Module } from '@nestjs/common';
-import { PdfController } from './pdf.controller';
-import { WordController } from './word.controller';
 import { ConvertService } from './convert.service';
-import { CompressPdfController } from './compress-pdf.controller';
-import { SplitMergeController } from './split-merge.controller';
+import { ConversionController } from './conversion.controller';
 
 @Module({
-  controllers: [PdfController, WordController, CompressPdfController],
+  controllers: [ConversionController],
   providers: [ConvertService]
 })
 export class ConvertModule {}
