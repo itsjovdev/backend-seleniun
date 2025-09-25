@@ -6,7 +6,7 @@ import { CompressPdfController } from './compress-pdf.controller';
 import { SplitMergeController } from './split-merge.controller';
 
 @Module({
-  controllers: [PdfController, WordController, CompressPdfController],
+  controllers: [PdfController, WordController, CompressPdfController, SplitMergeController],
   providers: [ConvertService]
 })
 export class ConvertModule {}
