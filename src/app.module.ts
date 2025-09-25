@@ -4,14 +4,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { ConvertModule } from './convert/convert.module';
-import { InvoiceModule } from './invoice/invoice.module';
 import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
     // 👇 SOLO tus módulos reales, sin TypeORM
     ConvertModule,
-    InvoiceModule,
     PdfModule,
   ],
   controllers: [AppController],
