@@ -1,13 +1,46 @@
 version: "3.8"
+
 services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: seleniun
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
   api:
     build: .
-    ports:
-      - "3000:3000"  # En lugar de "3001:3000"
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-    volumes:
-      - .:/app
-      - /app/node_modules
+    container_name: nest-api
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: app
+      DB_PASS: app
+      DB_NAME: seleniun
+      TYPEORM_SYNC: "true"
+      MAX_PAGES: 15
+      MAX_PDF_MB: 10
+      LLM_PROVIDER: deepseek
+      LLM_MODEL: deepseek-chat
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+    ports:
+      - "3001:3000"
+    # ❌ NO montes .:/app — eso metía el dist viejo y veías Ollama
+
+volumes:
+  mysql_data:

@@ -101,4 +101,32 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 docker-compose up --build
 
 ## para reconstruir el contenedor 
+docker-compose up -d --build
 docker-compose down
+
+## para levantar 
+npm run start:dev
+
+
+## para ver los logs del contenedor
+
+docker compose logs -f api
+
+## tres pasos para el dockker 
+docker compose down
+
+docker compose up -d --build
+
+docker compose logs -f api
+
+
+# Elimina la imagen completamente
+docker-compose down
+docker rmi api-api:latest -f
+
+# Limpia todo el caché
+docker system prune -af
+
+# Reconstruye desde cero
+docker-compose build --no-cache --pull
+docker-compose up
