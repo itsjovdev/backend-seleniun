@@ -12,7 +12,7 @@ const execAsync = promisify(exec);
 @Injectable()
 export class PdfEncryptService {
   private readonly tempDir = os.tmpdir();
-  private readonly pdftk_path = '"C:\\Program Files (x86)\\PDFtk\\bin\\pdftk.exe"';
+  private readonly pdftk_path = 'pdftk';
 
   /**
    * Encripta un PDF con contraseña REAL usando pdftk directamente
