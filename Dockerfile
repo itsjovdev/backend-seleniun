@@ -15,35 +15,14 @@ RUN apt-get update && \
     # Herramientas adicionales de PDF
     poppler-utils \
     qpdf \
+    # 🔐 PDFTK para encriptación REAL
+    pdftk-java \
     # Fuentes para mejor renderizado
     fonts-dejavu \
     fonts-liberation \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Verificar instalación de Ghostscript
+# Verificar instalaciones
 RUN gs --version && echo "✅ Ghostscript instalado correctamente"
-
-# 🔧 Instalar dependencias de Node (OPTIMIZADO)
-COPY package*.json ./
-
-# Limpiar cache y usar npm ci para builds más estables
-RUN npm cache clean --force && \
-    npm ci --only=production --no-audit --no-fund --verbose
-
-# Instalar dependencias de desarrollo para el build
-RUN npm ci --no-audit --no-fund --verbose
-
-# Copiar código fuente
-COPY . .
-
-# Construir la aplicación
-RUN npm run build
-
-# Limpiar dependencias de desarrollo para reducir tamaño
-RUN npm prune --production
-
-EXPOSE 3000
-
-# Usar el comando correcto
-CMD ["node", "dist/main.js"]
+RUN pdftk --version && echo "✅ PDFTK instalado correctamente"
