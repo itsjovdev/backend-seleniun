@@ -63,8 +63,6 @@ export class PdfEncryptService {
         throw new Error('Encrypted PDF file is empty');
       }
 
-      console.log(`[${jobId}] REAL encryption successful - ${encryptedBuffer.length} bytes`);
-      console.log(`[${jobId}] PDF will require password "${password}" to open`);
 
       return encryptedBuffer;
 

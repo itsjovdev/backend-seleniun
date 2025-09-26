@@ -39,6 +39,7 @@ services:
       LLM_MODEL: deepseek-chat
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
     ports:
-      - "3001:3000"
+      - "3000:3000"  # Cambiar de 3001:3000 a 3000:3000
+
 volumes:
   mysql_data:
