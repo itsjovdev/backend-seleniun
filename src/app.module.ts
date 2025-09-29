@@ -8,13 +8,15 @@ import { AppService } from './app.service';
 import { ConvertModule } from './convert/convert.module';
 import { PdfModule } from './pdf/pdf.module';
 import { PdfEncryptModule } from './pdf-encrypt/pdf-encrypt.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
     // 👇 SOLO tus módulos reales, sin TypeORM
     ConvertModule,
     PdfModule,
-    PdfEncryptModule
+    PdfEncryptModule,
+    AiModule
   ],
   controllers: [AppController],
   providers: [AppService],
