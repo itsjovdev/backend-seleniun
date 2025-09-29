@@ -3,12 +3,7 @@
 import { IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class GenerateDto {
-  @IsString()
-  prompt!: string;
-
-  @IsOptional() @IsString()
+  prompt: string;
   system?: string;
-
-  @IsOptional() @IsNumber()
   temperature?: number;
 }
