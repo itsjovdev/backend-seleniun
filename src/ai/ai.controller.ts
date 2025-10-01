@@ -42,8 +42,7 @@ export class AiController {
     res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders?.();
 
-    const stream = await this.ai.streamGenerate(prompt, system, temperature);
-
+const stream = await this.ai.streamGenerate(prompt, system, temperature, 200);
     stream.on('error', (e) => {
       console.error('Stream error:', e);
       try { res.status(500).end('Streaming error'); } catch {}
