@@ -1,8 +1,9 @@
 //C:\Users\jov\Documents\proyectos\seleniun\backend\api\src\ai\ai.controller.ts
-import { Body, Controller, Post, Res } from '@nestjs/common';
+//C:\Users\jov\Documents\proyectos\seleniun\backend\api\src\ai\ai.controller.ts
+import { Body, Controller, Post, Res, Req } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { GenerateDto } from './ai.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('ai')
 export class AiController {
@@ -14,14 +15,31 @@ export class AiController {
     return this.ai.generate(prompt, system, temperature);
   }
 
-  // 🔥 Stream: devuelve texto plano incremental
   @Post('generate/stream')
-  async generateStream(@Body() dto: GenerateDto, @Res() res: Response) {
+  async generateStream(
+    @Body() dto: GenerateDto,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
     const { prompt, system, temperature } = dto;
 
+    // Headers CORS manuales
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+      'http://localhost:8080',
+      'http://127.0.0.1:8080',
+      'https://seleniun.com',
+      'https://www.seleniun.com',
+      'https://document-intellisense.vercel.app'
+    ];
+
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('X-Accel-Buffering', 'no'); // para Nginx
+    res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders?.();
 
     const stream = await this.ai.streamGenerate(prompt, system, temperature);
