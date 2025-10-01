@@ -39,7 +39,7 @@ export class AiService {
   }
 
   // 🔥 Streaming: devuelve un stream con el texto a medida que llega
-  async streamGenerate(prompt: string, system?: string, temperature = 0.7, maxTokens = 700) {
+  async streamGenerate(prompt: string, system?: string, temperature = 0.7, maxTokens = 200) {
     const body = {
       model: this.model,
       messages: [
