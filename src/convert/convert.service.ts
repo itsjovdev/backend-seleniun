@@ -14,6 +14,8 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import * as ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
 
 const exec = promisify(execFile);
 
@@ -643,6 +645,87 @@ private async trySplitWithQpdf(inPdf: string, outPdf: string, pages: string) {
     return { success: false, method: 'qpdf-failed' };
   }
 }
+
+  async pdfToExcel(buffer: Buffer, filename: string) {
+    const dir = mkdtempSync(join(tmpdir(), 'pdf2excel-'));
+    const xlsxFile = join(dir, 'output.xlsx');
+    const cleanup = () => rmSync(dir, { recursive: true, force: true });
+
+    try {
+      // 🔍 Usa pdf-parse para extraer texto
+      const pdfParse = require('pdf-parse');
+      const data = await pdfParse(buffer);
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('PDF Data');
+
+      // dividir por saltos de línea
+      const lines = data.text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+
+      lines.forEach((line: string, idx: number) => {
+        // separa por espacios → cada palabra en una celda
+        const row = line.split(/\s+/);
+        sheet.addRow(row);
+      });
+
+      await workbook.xlsx.writeFile(xlsxFile);
+
+      const stream = createReadStream(xlsxFile);
+      stream.on('close', cleanup);
+      return stream;
+    } catch (e: any) {
+      cleanup();
+      throw new Error(`Error al convertir PDF a Excel: ${e.message}`);
+    }
+  }
+
+
+async excelToPdf(fileBuffer: Buffer, filename: string) {
+  const dir = mkdtempSync(join(tmpdir(), 'excel2pdf-'));
+  const excelFile = join(dir, 'input.xlsx');
+  const pdfFile = join(dir, 'output.pdf');
+  const cleanup = () => rmSync(dir, { recursive: true, force: true });
+
+  try {
+    writeFileSync(excelFile, fileBuffer);
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(excelFile);
+
+    const sheet = workbook.worksheets[0];
+    if (!sheet) {
+      throw new Error('El archivo Excel no contiene hojas de cálculo');
+    }
+
+    const doc = new PDFDocument({ margin: 30, size: 'A4' });
+    const fs = require('fs');
+    const streamFile = fs.createWriteStream(pdfFile);
+    doc.pipe(streamFile);
+
+    doc.fontSize(10);
+    
+    sheet.eachRow((row, rowNumber) => {
+      const values = row.values as any[];
+      const filteredValues = values.slice(1).filter(v => v !== null && v !== undefined);
+      
+      if (filteredValues.length > 0) {
+        doc.text(filteredValues.join(' | '));
+      }
+    });
+
+    doc.end();
+
+    await new Promise((resolve) => streamFile.on('finish', resolve));
+
+    const stream = createReadStream(pdfFile);
+    stream.on('close', cleanup);
+    return stream;
+  } catch (e: any) {
+    cleanup();
+    throw new Error(`Error al convertir Excel a PDF: ${e.message}`);
+  }
+}
+
 
 private async tryMergeWithGhostscript(inputFiles: string[], outPdf: string) {
   try {

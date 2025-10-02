@@ -217,4 +217,54 @@ export class ConversionController {
       throw new BadRequestException(`Error al unir PDFs: ${error.message}`);
     }
   }
+
+
+  //PARA EXCEL
+
+    @Post('pdf-to-excel')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 100 * 1024 * 1024 } }))
+  @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  @Header('Content-Disposition', 'attachment; filename="resultado.xlsx"')
+  async pdfToExcel(@UploadedFile() file: Express.Multer.File): Promise<StreamableFile> {
+    console.log('📥 POST /convert/pdf-to-excel called');
+
+    if (!file) throw new BadRequestException('Falta el archivo');
+    if (file.mimetype !== 'application/pdf') {
+      throw new BadRequestException('Debe ser un PDF');
+    }
+
+    try {
+      const stream = await this.convertService.pdfToExcel(file.buffer, file.originalname);
+      return new StreamableFile(stream);
+    } catch (error: any) {
+      console.error('❌ PDF to Excel error:', error.message);
+      throw new BadRequestException(`Error de conversión: ${error.message}`);
+    }
+  }
+
+  @Post('excel-to-pdf')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 100 * 1024 * 1024 } }))
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="resultado.pdf"')
+  async excelToPdf(@UploadedFile() file: Express.Multer.File): Promise<StreamableFile> {
+    console.log('📥 POST /convert/excel-to-pdf called');
+
+    if (!file) throw new BadRequestException('Falta el archivo');
+    const allowedTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel'
+    ];
+    if (!allowedTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Debe ser un archivo Excel (.xls o .xlsx)');
+    }
+
+    try {
+      const stream = await this.convertService.excelToPdf(file.buffer, file.originalname);
+      return new StreamableFile(stream);
+    } catch (error: any) {
+      console.error('❌ Excel to PDF error:', error.message);
+      throw new BadRequestException(`Error de conversión: ${error.message}`);
+    }
+  }
+
 }
